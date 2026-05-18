@@ -1,13 +1,14 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Auth/Login";
+import Dashboard from "./pages/Dashboard/Dashboard";
 function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <div className="bg-white p-10 rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold">Applantics TODO App</h1>
-
-        <p className="mt-4 text-gray-600">Laravel + React Professional Setup</p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
 export default App;
