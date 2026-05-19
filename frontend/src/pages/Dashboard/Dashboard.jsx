@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import DashboardLayout from "../../layouts/DashboardLayout";
 
@@ -20,12 +21,10 @@ function Dashboard() {
 
   const [form, setForm] = useState({
     title: "",
-
     description: "",
-
     priority: "LOW",
-
     status: "PENDING",
+    due_date: "",
   });
 
   useEffect(() => {
@@ -52,7 +51,7 @@ function Dashboard() {
 
       setTodos(response.data);
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to load todos");
     }
   };
 
@@ -67,31 +66,43 @@ function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editingId) {
-      await updateTodo(editingId, form);
+    try {
+      if (editingId) {
+        await updateTodo(editingId, form);
 
-      setEditingId(null);
-    } else {
-      await createTodo(form);
+        toast.success("Todo updated");
+
+        setEditingId(null);
+      } else {
+        await createTodo(form);
+
+        toast.success("Todo added");
+      }
+
+      setForm({
+        title: "",
+        description: "",
+        priority: "LOW",
+        status: "PENDING",
+        due_date: "",
+      });
+
+      fetchTodos();
+    } catch (error) {
+      toast.error("Operation failed");
     }
-
-    setForm({
-      title: "",
-
-      description: "",
-
-      priority: "LOW",
-
-      status: "PENDING",
-    });
-
-    fetchTodos();
   };
 
   const handleDelete = async (id) => {
-    await deleteTodo(id);
+    try {
+      await deleteTodo(id);
 
-    fetchTodos();
+      toast.success("Todo deleted");
+
+      fetchTodos();
+    } catch {
+      toast.error("Delete failed");
+    }
   };
 
   const handleEdit = (todo) => {
@@ -99,12 +110,10 @@ function Dashboard() {
 
     setForm({
       title: todo.title,
-
       description: todo.description,
-
       priority: todo.priority,
-
       status: todo.status,
+      due_date: todo.due_date || "",
     });
   };
 
@@ -126,26 +135,23 @@ function Dashboard() {
 
         <div className="grid md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white text-black p-6 rounded-2xl shadow">
-            <p className="text-gray-500">Total</p>
+            <p>Total</p>
 
             <h2 className="text-3xl font-bold">{totalTodos}</h2>
           </div>
 
-          <div className="bg-amber-100 p-6 rounded-2xl shadow text-black">
-            <p>Pending</p>
-
+          <div className="bg-amber-100 p-6 rounded-2xl">
+            Pending
             <h2 className="text-3xl font-bold">{pendingTodos}</h2>
           </div>
 
-          <div className="bg-blue-100 p-6 rounded-2xl shadow text-black">
-            <p>In Progress</p>
-
+          <div className="bg-blue-100 p-6 rounded-2xl">
+            Progress
             <h2 className="text-3xl font-bold">{progressTodos}</h2>
           </div>
 
-          <div className="bg-green-100 p-6 rounded-2xl shadow text-black">
-            <p>Done</p>
-
+          <div className="bg-green-100 p-6 rounded-2xl">
+            Done
             <h2 className="text-3xl font-bold">{doneTodos}</h2>
           </div>
         </div>
@@ -190,11 +196,17 @@ function Dashboard() {
             className="w-full border p-3 rounded-xl text-black"
           >
             <option>PENDING</option>
-
             <option>IN_PROGRESS</option>
-
             <option>DONE</option>
           </select>
+
+          <input
+            type="date"
+            name="due_date"
+            value={form.due_date}
+            onChange={handleChange}
+            className="w-full border p-3 rounded-xl text-black"
+          />
 
           <button className="bg-slate-900 text-white px-6 py-3 rounded-xl">
             {editingId ? "Update Todo" : "Add Todo"}
@@ -207,38 +219,37 @@ function Dashboard() {
           {filteredTodos.map((todo) => (
             <div
               key={todo.id}
-              className="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition border flex justify-between"
+              className={`
+
+              p-6 rounded-2xl shadow flex justify-between
+
+              ${
+                todo.due_date &&
+                new Date(todo.due_date) < new Date() &&
+                todo.status !== "DONE"
+                  ? "bg-red-100 border border-red-400"
+                  : "bg-white"
+              }
+
+              `}
             >
               <div>
-                <h2 className="text-xl font-bold text-black">{todo.title}</h2>
+                <h2 className="text-black font-bold text-xl">{todo.title}</h2>
 
                 <p className="text-gray-600 mt-2">{todo.description}</p>
 
-                <div className="mt-3 flex gap-2">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      todo.priority === "HIGH"
-                        ? "bg-red-100 text-red-600"
-                        : todo.priority === "MEDIUM"
-                          ? "bg-amber-100 text-amber-600"
-                          : "bg-green-100 text-green-600"
-                    }`}
-                  >
-                    {todo.priority}
-                  </span>
+                <p className="text-sm text-gray-500 mt-2">
+                  📅 Due:
+                  {todo.due_date ? todo.due_date : " No date"}
+                </p>
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      todo.status === "DONE"
-                        ? "bg-green-100 text-green-700"
-                        : todo.status === "IN_PROGRESS"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {todo.status}
-                  </span>
-                </div>
+                {todo.due_date &&
+                  new Date(todo.due_date) < new Date() &&
+                  todo.status !== "DONE" && (
+                    <p className="text-red-600 font-bold mt-2">
+                      ⚠ Overdue Task
+                    </p>
+                  )}
               </div>
 
               <div className="space-x-2">
