@@ -50,6 +50,8 @@ function Login() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
       <div className="grid md:grid-cols-2 bg-white rounded-3xl shadow-xl overflow-hidden max-w-5xl w-full">
+        {/* LEFT SIDE */}
+
         <div className="bg-slate-900 text-white p-10 flex flex-col justify-center">
           <h1 className="text-4xl font-bold mb-4">Applantics TODO</h1>
 
@@ -69,8 +71,16 @@ function Login() {
 
               <span>Manage priorities</span>
             </div>
+
+            <div className="flex gap-3">
+              <CheckCircle2 />
+
+              <span>Elegant dashboard</span>
+            </div>
           </div>
         </div>
+
+        {/* RIGHT SIDE */}
 
         <div className="p-10">
           <h2 className="text-3xl font-bold mb-2">Welcome Back</h2>
@@ -100,6 +110,13 @@ function Login() {
               Login
             </button>
           </form>
+
+          <p className="text-center mt-6">
+            Don't have an account?
+            <a href="/register" className="text-blue-600 ml-2 font-semibold">
+              Register
+            </a>
+          </p>
         </div>
       </div>
     </div>
