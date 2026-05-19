@@ -16,6 +16,8 @@ function Dashboard() {
 
   const [search, setSearch] = useState("");
 
+  const [dark, setDark] = useState(false);
+
   const [form, setForm] = useState({
     title: "",
 
@@ -41,11 +43,7 @@ function Dashboard() {
   const doneTodos = todos.filter((todo) => todo.status === "DONE").length;
 
   const filteredTodos = todos.filter((todo) =>
-    todo.title
-
-      .toLowerCase()
-
-      .includes(search.toLowerCase()),
+    todo.title.toLowerCase().includes(search.toLowerCase()),
   );
 
   const fetchTodos = async () => {
@@ -111,8 +109,8 @@ function Dashboard() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="p-8">
+    <DashboardLayout dark={dark} setDark={setDark}>
+      <div className={dark ? "p-8 text-white" : "p-8"}>
         <h1 className="text-4xl font-bold mb-8">TODO Dashboard</h1>
 
         {/* SEARCH */}
@@ -121,31 +119,31 @@ function Dashboard() {
           placeholder="Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full p-4 rounded-2xl border mb-8 bg-white"
+          className="w-full p-4 rounded-2xl border mb-8 text-black bg-white"
         />
 
         {/* STATS */}
 
         <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow">
+          <div className="bg-white text-black p-6 rounded-2xl shadow">
             <p className="text-gray-500">Total</p>
 
             <h2 className="text-3xl font-bold">{totalTodos}</h2>
           </div>
 
-          <div className="bg-amber-100 p-6 rounded-2xl shadow">
+          <div className="bg-amber-100 p-6 rounded-2xl shadow text-black">
             <p>Pending</p>
 
             <h2 className="text-3xl font-bold">{pendingTodos}</h2>
           </div>
 
-          <div className="bg-blue-100 p-6 rounded-2xl shadow">
+          <div className="bg-blue-100 p-6 rounded-2xl shadow text-black">
             <p>In Progress</p>
 
             <h2 className="text-3xl font-bold">{progressTodos}</h2>
           </div>
 
-          <div className="bg-green-100 p-6 rounded-2xl shadow">
+          <div className="bg-green-100 p-6 rounded-2xl shadow text-black">
             <p>Done</p>
 
             <h2 className="text-3xl font-bold">{doneTodos}</h2>
@@ -163,7 +161,7 @@ function Dashboard() {
             value={form.title}
             onChange={handleChange}
             placeholder="Task title"
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl text-black"
           />
 
           <textarea
@@ -171,14 +169,14 @@ function Dashboard() {
             value={form.description}
             onChange={handleChange}
             placeholder="Description"
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl text-black"
           />
 
           <select
             name="priority"
             value={form.priority}
             onChange={handleChange}
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl text-black"
           >
             <option>LOW</option>
             <option>MEDIUM</option>
@@ -189,7 +187,7 @@ function Dashboard() {
             name="status"
             value={form.status}
             onChange={handleChange}
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl text-black"
           >
             <option>PENDING</option>
 
@@ -209,19 +207,35 @@ function Dashboard() {
           {filteredTodos.map((todo) => (
             <div
               key={todo.id}
-              className="bg-white p-6 rounded-2xl shadow flex justify-between"
+              className="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition border flex justify-between"
             >
               <div>
-                <h2 className="text-xl font-bold">{todo.title}</h2>
+                <h2 className="text-xl font-bold text-black">{todo.title}</h2>
 
                 <p className="text-gray-600 mt-2">{todo.description}</p>
 
                 <div className="mt-3 flex gap-2">
-                  <span className="bg-blue-100 px-3 py-1 rounded-full">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      todo.priority === "HIGH"
+                        ? "bg-red-100 text-red-600"
+                        : todo.priority === "MEDIUM"
+                          ? "bg-amber-100 text-amber-600"
+                          : "bg-green-100 text-green-600"
+                    }`}
+                  >
                     {todo.priority}
                   </span>
 
-                  <span className="bg-green-100 px-3 py-1 rounded-full">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      todo.status === "DONE"
+                        ? "bg-green-100 text-green-700"
+                        : todo.status === "IN_PROGRESS"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-700"
+                    }`}
+                  >
                     {todo.status}
                   </span>
                 </div>

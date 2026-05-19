@@ -1,11 +1,23 @@
-import { LayoutDashboard } from "lucide-react";
+import { LayoutDashboard, Moon, Sun } from "lucide-react";
 
-function DashboardLayout({ children }) {
+function DashboardLayout({ children, dark, setDark }) {
   return (
-    <div className="min-h-screen flex bg-slate-100">
+    <div
+      className={
+        dark
+          ? "min-h-screen flex bg-slate-900"
+          : "min-h-screen flex bg-slate-100"
+      }
+    >
       {/* SIDEBAR */}
 
-      <div className="w-72 bg-slate-900 text-white p-8">
+      <div
+        className={
+          dark
+            ? "w-72 bg-black text-white p-8"
+            : "w-72 bg-slate-900 text-white p-8"
+        }
+      >
         <h1 className="text-3xl font-bold mb-10">Applantics</h1>
 
         <div className="space-y-4">
@@ -14,6 +26,14 @@ function DashboardLayout({ children }) {
 
             <span>Dashboard</span>
           </div>
+
+          <button
+            onClick={() => setDark(!dark)}
+            className="w-full bg-slate-800 p-4 rounded-xl flex gap-3"
+          >
+            {dark ? <Sun /> : <Moon />}
+            Theme
+          </button>
         </div>
       </div>
 
