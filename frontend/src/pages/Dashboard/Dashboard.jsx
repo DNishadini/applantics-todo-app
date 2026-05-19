@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 
-import { getTodos, createTodo, deleteTodo } from "../../services/todoService";
+import {
+  getTodos,
+  createTodo,
+  deleteTodo,
+  updateTodo,
+} from "../../services/todoService";
 
 function Dashboard() {
   const [todos, setTodos] = useState([]);
+
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -11,6 +18,8 @@ function Dashboard() {
     description: "",
 
     priority: "LOW",
+
+    status: "PENDING",
   });
 
   useEffect(() => {
@@ -18,13 +27,9 @@ function Dashboard() {
   }, []);
 
   const fetchTodos = async () => {
-    try {
-      const response = await getTodos();
+    const response = await getTodos();
 
-      setTodos(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    setTodos(response.data);
   };
 
   const handleChange = (e) => {
@@ -38,7 +43,13 @@ function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await createTodo(form);
+    if (editingId) {
+      await updateTodo(editingId, form);
+
+      setEditingId(null);
+    } else {
+      await createTodo(form);
+    }
 
     setForm({
       title: "",
@@ -46,6 +57,8 @@ function Dashboard() {
       description: "",
 
       priority: "LOW",
+
+      status: "PENDING",
     });
 
     fetchTodos();
@@ -57,11 +70,23 @@ function Dashboard() {
     fetchTodos();
   };
 
+  const handleEdit = (todo) => {
+    setEditingId(todo.id);
+
+    setForm({
+      title: todo.title,
+
+      description: todo.description,
+
+      priority: todo.priority,
+
+      status: todo.status,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 p-8">
       <h1 className="text-4xl font-bold mb-8">TODO Dashboard</h1>
-
-      {/* FORM */}
 
       <form
         onSubmit={handleSubmit}
@@ -73,7 +98,6 @@ function Dashboard() {
           onChange={handleChange}
           placeholder="Task title"
           className="w-full border p-3 rounded-xl"
-          required
         />
 
         <textarea
@@ -90,43 +114,66 @@ function Dashboard() {
           onChange={handleChange}
           className="w-full border p-3 rounded-xl"
         >
-          <option value="LOW">LOW</option>
+          <option>LOW</option>
+          <option>MEDIUM</option>
+          <option>HIGH</option>
+        </select>
 
-          <option value="MEDIUM">MEDIUM</option>
+        <select
+          name="status"
+          value={form.status}
+          onChange={handleChange}
+          className="w-full border p-3 rounded-xl"
+        >
+          <option>PENDING</option>
 
-          <option value="HIGH">HIGH</option>
+          <option>IN_PROGRESS</option>
+
+          <option>DONE</option>
         </select>
 
         <button className="bg-slate-900 text-white px-6 py-3 rounded-xl">
-          Add Todo
+          {editingId ? "Update Todo" : "Add Todo"}
         </button>
       </form>
-
-      {/* TODO LIST */}
 
       <div className="grid gap-4">
         {todos.map((todo) => (
           <div
             key={todo.id}
-            className="bg-white p-6 rounded-2xl shadow flex justify-between items-start"
+            className="bg-white p-6 rounded-2xl shadow flex justify-between"
           >
             <div>
               <h2 className="text-xl font-bold">{todo.title}</h2>
 
-              <p className="text-gray-600 mt-2">{todo.description}</p>
+              <p>{todo.description}</p>
 
-              <div className="mt-3">
-                Priority:
-                <span className="ml-2 font-semibold">{todo.priority}</span>
+              <div className="mt-2 flex gap-2">
+                <span className="bg-blue-100 px-3 py-1 rounded-full">
+                  {todo.priority}
+                </span>
+
+                <span className="bg-green-100 px-3 py-1 rounded-full">
+                  {todo.status}
+                </span>
               </div>
             </div>
 
-            <button
-              onClick={() => handleDelete(todo.id)}
-              className="bg-red-500 text-white px-4 py-2 rounded-xl"
-            >
-              Delete
-            </button>
+            <div className="space-x-2">
+              <button
+                onClick={() => handleEdit(todo)}
+                className="bg-amber-500 text-white px-4 py-2 rounded-xl"
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() => handleDelete(todo.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded-xl"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
