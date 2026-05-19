@@ -1,6 +1,12 @@
-import { LayoutDashboard, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, Moon, Sun, LogOut } from "lucide-react";
 
 function DashboardLayout({ children, dark, setDark }) {
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+
+    window.location.href = "/";
+  };
+
   return (
     <div
       className={
@@ -32,12 +38,20 @@ function DashboardLayout({ children, dark, setDark }) {
             className="w-full bg-slate-800 p-4 rounded-xl flex gap-3"
           >
             {dark ? <Sun /> : <Moon />}
-            Theme
+
+            <span>Theme</span>
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-600 p-4 rounded-xl flex gap-3"
+          >
+            <LogOut />
+
+            <span>Logout</span>
           </button>
         </div>
       </div>
-
-      {/* CONTENT */}
 
       <div className="flex-1">{children}</div>
     </div>

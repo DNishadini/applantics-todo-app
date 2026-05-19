@@ -1,6 +1,52 @@
+import { useState } from "react";
+
 import { CheckCircle2 } from "lucide-react";
 
+import { loginUser } from "../../services/authService";
+
+import toast from "react-hot-toast";
+
+import { useNavigate } from "react-router-dom";
+
 function Login() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    email: "",
+
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await loginUser(form);
+
+      localStorage.setItem(
+        "user",
+
+        JSON.stringify(response.data.user),
+      );
+
+      toast.success("Login successful");
+
+      window.location.href = "/dashboard";
+    } catch (error) {
+      console.log(error.response);
+
+      toast.error("Invalid credentials");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
       <div className="grid md:grid-cols-2 bg-white rounded-3xl shadow-xl overflow-hidden max-w-5xl w-full">
@@ -14,17 +60,14 @@ function Login() {
           <div className="space-y-4">
             <div className="flex gap-3">
               <CheckCircle2 />
+
               <span>Track daily tasks</span>
             </div>
 
             <div className="flex gap-3">
               <CheckCircle2 />
-              <span>Manage priorities</span>
-            </div>
 
-            <div className="flex gap-3">
-              <CheckCircle2 />
-              <span>Elegant dashboard</span>
+              <span>Manage priorities</span>
             </div>
           </div>
         </div>
@@ -34,15 +77,21 @@ function Login() {
 
           <p className="text-gray-500 mb-8">Login to continue</p>
 
-          <form className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <input
               type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
               placeholder="Email"
               className="w-full border rounded-xl p-4"
             />
 
             <input
               type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
               placeholder="Password"
               className="w-full border rounded-xl p-4"
             />
